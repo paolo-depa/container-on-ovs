@@ -44,7 +44,8 @@ assign it an IP and activate it:
 
 Optionally, setup a NAT rule on the bridge interface and allow its traffic to be forwarded:
 
-> iptables -t nat -A POSTROUTING -o container-br0 -j MASQUERADE
+> iptables -t nat -A POSTROUTING -o container-br0 -j MASQUERADE;
+
 > iptables -A FORWARD -i container-br0 -j ACCEPT
 
 Now we are going to use the _ovs-docker_ magic script, shipped with ovs: it creates a port in a ovs bridge and injects it in the container.
