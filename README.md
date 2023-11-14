@@ -1,4 +1,4 @@
-# Project Title
+# Connecting containers using OVS
 
 ## Table of Contents
 
@@ -8,7 +8,7 @@
 
 ## About <a name = "about"></a>
 
-This project is targeted to giving a quick and easy way to make two or more containers using ovs.
+This project is targeted to giving a quick and easy way to connect two (or more) containers using ovs.
 The project makes use of podman as container engine, but docker can be used as well with minimal changes.
 
 ## Getting Started <a name = "getting_started"></a>
@@ -20,7 +20,7 @@ The to-be-used container image is built using the Dockerfile in "images" folder:
 _podman build -t ovs-container ._
 
 Once done, verify that the image has been added locally:
-_podman images | grep podman build -t ovs-container ._
+_podman images | grep ovs-container_
 
 ### Running the containers
 
@@ -50,7 +50,7 @@ _iptables -A FORWARD -i container-br0 -j ACCEPT_
 Now we are going to use the _ovs-docker_ magic script, shipped with ovs: it creates a port in a ovs bridge and injects it in the container.
 As I'm using podman instead of docker, I had 2 options:
 * Rewrite the script itself to support podman ( feel free to do it [here](https://github.com/openvswitch/ovs/blob/master/utilities/ovs-docker) )
-* Cheating a little, create a symbolic link named "docker" pointing to "podman" executable (_ln -s /usr/bin/podman /usr/bin/docker_)
+* Cheating a little, creating a symbolic link named "docker" pointing to "podman" executable (_ln -s /usr/bin/podman /usr/bin/docker_)
 
 ...I choose the second... and it works! :-D
 
@@ -59,10 +59,13 @@ Let's create the ports:
 - ovs-docker add-port container-br0 eth0 bci_0 --gateway=192.168.10.1 --ipaddress="192.168.10.10/24"
 - ovs-docker add-port container-br0 eth0 bci_1 --gateway=192.168.10.1 --ipaddress="192.168.10.20/24"
 
+Using the console opened on creation of bci_0 and bci_1 (or attaching a new one - _podman attach bci-[0-1]_), the eth0 interface having the proper IP configured shows up when running:
+
+_ip addr_
 
 ## Benchmarking <a name = "bench"></a>
 
-From the bci_0 console (or running _podman attach bci_0_, if you lost it) run:
+From the bci_0 console run:
 
 _iperf3 -s_
 
