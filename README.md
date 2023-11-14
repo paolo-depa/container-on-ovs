@@ -8,7 +8,7 @@
 
 ## About <a name = "about"></a>
 
-This project is targeted to giving a quick and easy way to connect two (or more) containers using ovs.
+This project aims to give a quick and easy way to connect two (or more) containers using openvswitch (aka ovs).
 The project makes use of podman as container engine, but docker can be used as well with minimal changes.
 
 ## Getting Started <a name = "getting_started"></a>
@@ -48,7 +48,7 @@ Optionally, setup a NAT rule on the bridge interface and allow its traffic to be
 
 > iptables -A FORWARD -i container-br0 -j ACCEPT
 
-Now we are going to use the _ovs-docker_ magic script, shipped with ovs: it creates a port in a ovs bridge and injects it in the container.
+Now we are going to use the *ovs-docker* magic script, shipped with ovs: it creates a port in a ovs bridge and injects it in the container.
 As I'm using podman instead of docker, I had 2 options:
 * Rewrite the script itself to support podman ( feel free to do it [here](https://github.com/openvswitch/ovs/blob/master/utilities/ovs-docker) )
 * Cheating a little, creating a symbolic link named "docker" pointing to "podman" executable (_ln -s /usr/bin/podman /usr/bin/docker_)
@@ -66,11 +66,11 @@ Using the console opened when creating bci_0 and bci_1 (or attaching a new one -
 
 ## Benchmarking <a name = "bench"></a>
 
-From the bci_0 console run:
+In the *bci_0* console run:
 
 > iperf3 -s 
 
-then from the bci_1 console run:
+then in the *bci_1* console run:
 
 > iperf3 -c 192.168.10.10
 
