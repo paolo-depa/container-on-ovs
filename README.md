@@ -26,14 +26,48 @@ _podman images | grep podman build -t ovs-container ._
 
 Once the image is added, open two different console, and run:
 
-* _podman run -it --name bci_0  --net=none localhost/ovs-container:latest_
-* _podman run -it --name bci_1  --net=none localhost/ovs-container:latest_
+- _podman run -it --name bci_0  --net=none localhost/ovs-container:latest_
+- _podman run -it --name bci_1  --net=none localhost/ovs-container:latest_
 
 The --net=none switch will make the container start only with loopback interface.
 
+### Connecting containers and ovs
 
+First create a dedicated ovs bridge:
+
+_ovs-vsctl add-br container-br0_
+
+assign it an IP and activate it:
+
+_ip addr add 192.168.10.1/24 dev container-br0_
+_ip link set container-br0 up_
+
+Optionally, setup a NAT rule on the bridge interface and allow its traffic to be forwarded:
+
+_iptables -t nat -A POSTROUTING -o container-br0 -j MASQUERADE_
+_iptables -A FORWARD -i container-br0 -j ACCEPT_
+
+Now we are going to use the _ovs-docker_ magic script, shipped with ovs: it creates a port in a ovs bridge and injects it in the container.
+As I'm using podman instead of docker, I had 2 options:
+* Rewrite the script itself to support podman ( feel free to do it [here](https://github.com/openvswitch/ovs/blob/master/utilities/ovs-docker) )
+* Cheating a little, create a symbolic link named "docker" pointing to "podman" executable (_ln -s /usr/bin/podman /usr/bin/docker_)
+
+...I choose the second... and it works! :-D
+
+Let's create the ports:
+
+- ovs-docker add-port container-br0 eth0 bci_0 --gateway=192.168.10.1 --ipaddress="192.168.10.10/24"
+- ovs-docker add-port container-br0 eth0 bci_1 --gateway=192.168.10.1 --ipaddress="192.168.10.20/24"
 
 
 ## Benchmarking <a name = "bench"></a>
 
-Add notes about how to use the system.
+From the bci_0 console (or running _podman attach bci_0_, if you lost it) run:
+
+_iperf3 -s_
+
+then from the bci_1 console run:
+
+_iperf3 -c 192.168.10.10_
+
+Feel free to play with iperf args: I suggest seeing how performances are modified by using -d, -t and -P NUM, 
