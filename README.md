@@ -60,7 +60,7 @@ Let's create the ports:
 1. > ovs-docker add-port container-br0 eth0 bci_0 --gateway=192.168.10.1 --ipaddress="192.168.10.10/24"
 1. > ovs-docker add-port container-br0 eth0 bci_1 --gateway=192.168.10.1 --ipaddress="192.168.10.20/24"
 
-Using the console opened on creation of bci_0 and bci_1 (or attaching a new one - _podman attach bci-[0-1]_), the eth0 interface having the proper IP configured shows up when running:
+Using the console opened when creating bci_0 and bci_1 (or attaching a new one - _podman attach bci-[0-1]_), the eth0 interface having the proper IP configured shows up when running:
 
 > ip addr
 
